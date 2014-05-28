@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,12 +19,12 @@ from __future__ import (absolute_import, division, print_function,
                         with_statement)
 
 import logging
-import operator
 
-from bbhack.Algoritms import Algorithms
+from bbhack.Algorithms import Algorithms
 from bbhack.base import BaseListener
 
 LOG = logging.getLogger(__name__)
+
 
 class HashTagLogger(BaseListener):
     def __init__(self, zmq_sub_string, channel):
@@ -38,7 +38,9 @@ class HashTagLogger(BaseListener):
                 tags = tweet['entities']['hashtags']
                 for tag in tags:
                     elem = tag['text']
-                    self.algorithm.computeHeavyHitter(elem)
+                    # self.algorithm.computeHeavyHitter(elem)
+                    self.algorithm.computeSketch(elem)
+                    print(elem, self.algorithm.getSketchFor(elem))
 
         return
 
