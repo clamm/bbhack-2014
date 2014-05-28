@@ -22,6 +22,7 @@ import logging
 import operator
 
 from stemming.porter2 import stem
+from bbhack.plotter import Plotter
 
 from bbhack.base import BaseListener
 
@@ -36,6 +37,10 @@ maxLen = 100
 class HashTagLogger(BaseListener):
     def __init__(self, zmq_sub_string, channel):
         super(HashTagLogger, self).__init__(zmq_sub_string, channel)
+        self.plotter = Plotter()
+
+    def getSortedTermFreq(self):
+        return self.sortedTermFreq
 
     def addToDict(self, tag):
         tag = tag.lower()
@@ -48,26 +53,28 @@ class HashTagLogger(BaseListener):
                 sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
                 last = sortedTermFreq[-1]
 
-                print ("removing " + str(last))
+                print("removing " + str(last))
                 del termFreq[last[0]]
                 termFreq[tag] = last[1] + 1
             else:
                 termFreq[tag] = 1
 
+        self.sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
+        global counter
+        self.plotter.plot(self.sortedTermFreq, counter)
+        counter += 1
 
-        sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
-
-        print(sortedTermFreq)
-
+        print(self.sortedTermFreq)
 
 
     def on_msg(self, tweet):
 
-        if 'entities' in tweet and 'hashtags' in tweet['entities']:
-            tags = tweet['entities']['hashtags']
-            for tag in tags:
-                elem = tag['text']
-                self.addToDict(elem)
+        if tweet['lang'] == 'en':
+            if 'entities' in tweet and 'hashtags' in tweet['entities']:
+                tags = tweet['entities']['hashtags']
+                for tag in tags:
+                    elem = tag['text']
+                    self.addToDict(elem)
 
         return
 
