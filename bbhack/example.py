@@ -22,14 +22,17 @@ import logging
 
 from bbhack.Algorithms import Algorithms
 from bbhack.base import BaseListener
+from bbhack.updateStreamdrill import StreamDrillUpdater
 
 LOG = logging.getLogger(__name__)
+
 
 
 class HashTagLogger(BaseListener):
     def __init__(self, zmq_sub_string, channel):
         super(HashTagLogger, self).__init__(zmq_sub_string, channel)
         self.algorithm = Algorithms()
+        self.streamDrillUpdater = StreamDrillUpdater()
 
     def on_msg(self, tweet):
 
@@ -39,8 +42,10 @@ class HashTagLogger(BaseListener):
                 for tag in tags:
                     elem = tag['text']
                     # self.algorithm.computeHeavyHitter(elem)
-                    self.algorithm.computeSketch(elem)
-                    print(elem, self.algorithm.getSketchFor(elem))
+                    # self.algorithm.computeSketch(elem)
+                    # print(elem, self.algorithm.getSketchFor(elem))
+                    self.streamDrillUpdater.update(elem)
+
 
         return
 
