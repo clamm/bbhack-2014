@@ -21,51 +21,15 @@ from __future__ import (absolute_import, division, print_function,
 import logging
 import operator
 
-from stemming.porter2 import stem
-from bbhack.plotter import Plotter
-
+from bbhack.Algoritms import Algorithms
 from bbhack.base import BaseListener
 
-
 LOG = logging.getLogger(__name__)
-
-termFreq = {}
-counter = 0
-maxLen = 100
-
 
 class HashTagLogger(BaseListener):
     def __init__(self, zmq_sub_string, channel):
         super(HashTagLogger, self).__init__(zmq_sub_string, channel)
-        self.plotter = Plotter()
-
-    def getSortedTermFreq(self):
-        return self.sortedTermFreq
-
-    def addToDict(self, tag):
-        tag = tag.lower()
-        tag = stem(tag)
-
-        if tag in termFreq.keys():
-            termFreq[tag] += 1
-        else:
-            if len(termFreq) > maxLen:
-                sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
-                last = sortedTermFreq[-1]
-
-                print("removing " + str(last))
-                del termFreq[last[0]]
-                termFreq[tag] = last[1] + 1
-            else:
-                termFreq[tag] = 1
-
-        self.sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
-        global counter
-        self.plotter.plot(self.sortedTermFreq, counter)
-        counter += 1
-
-        print(self.sortedTermFreq)
-
+        self.algorithm = Algorithms()
 
     def on_msg(self, tweet):
 
@@ -74,7 +38,7 @@ class HashTagLogger(BaseListener):
                 tags = tweet['entities']['hashtags']
                 for tag in tags:
                     elem = tag['text']
-                    self.addToDict(elem)
+                    self.algorithm.computeHeavyHitter(elem)
 
         return
 

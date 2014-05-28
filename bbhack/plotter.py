@@ -24,12 +24,17 @@ class Plotter:
 
     def plot(self, sortedTermFreq, counter):
         x = counter
-        y = sortedTermFreq[0][1]
 
+        colors = ['b','g', 'r', 'c', 'm']
 
-        line1, = self.ax.plot(x, y, 'r-')
-        line1.set_ydata(sortedTermFreq[0][1])
-        self.fig.canvas.draw()
+        for (i, tag) in enumerate(sortedTermFreq):
+            y = tag[1]
+
+            line1, = self.ax.plot(x, y, colors[i % 5]+'o', label=tag[0])
+            line1.set_ydata(tag[1])
+            plt.legend()
+            self.fig.canvas.draw()
+
         plt.show(block=False)
 
 
