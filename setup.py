@@ -52,7 +52,7 @@ setup(
     install_requires=[
         'twython',
         'pyzmq',
-        'delorean'
+        'delorean', 'redis'
     ],
 
     tests_require=tests_require,

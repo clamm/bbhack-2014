@@ -19,17 +19,23 @@ from __future__ import (absolute_import, division, print_function,
                         with_statement)
 
 import logging
+import redis
 
 from bbhack.Algorithms import Algorithms
 from bbhack.base import BaseListener
+from bbhack.updateStreamdrill import StreamDrillUpdater
 
 LOG = logging.getLogger(__name__)
+
+redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 
 
 class HashTagLogger(BaseListener):
     def __init__(self, zmq_sub_string, channel):
         super(HashTagLogger, self).__init__(zmq_sub_string, channel)
         self.algorithm = Algorithms()
+        self.streamDrillUpdater = StreamDrillUpdater()
 
     def on_msg(self, tweet):
 
@@ -41,7 +47,8 @@ class HashTagLogger(BaseListener):
                     # self.algorithm.computeHeavyHitter(elem)
                     self.algorithm.computeSketch(elem)
                     print(elem, self.algorithm.getSketchFor(elem))
-
+                    redis.publish('hashtag_count', elem)
+                    self.streamDrillUpdater.update(elem)
         return
 
 
