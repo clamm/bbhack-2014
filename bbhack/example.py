@@ -30,6 +30,7 @@ LOG = logging.getLogger(__name__)
 
 termFreq = {}
 counter = 0
+maxLen = 100
 
 
 class HashTagLogger(BaseListener):
@@ -39,15 +40,24 @@ class HashTagLogger(BaseListener):
     def addToDict(self, tag):
         tag = tag.lower()
         tag = stem(tag)
+
         if tag in termFreq.keys():
             termFreq[tag] += 1
         else:
-            termFreq[tag] = 1
+            if len(termFreq) > maxLen:
+                sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
+                last = sortedTermFreq[-1]
+
+                print ("removing " + str(last))
+                del termFreq[last[0]]
+                termFreq[tag] = last[1] + 1
+            else:
+                termFreq[tag] = 1
 
 
         sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
 
-        print(sortedTermFreq[1:10])
+        print(sortedTermFreq)
 
 
 
