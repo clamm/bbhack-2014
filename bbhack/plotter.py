@@ -27,7 +27,7 @@ class Plotter:
         y = sortedTermFreq[0][1]
 
 
-        line1, = self.ax.plot(x, y, 'r.')
+        line1, = self.ax.plot(x, y, 'r-')
         line1.set_ydata(sortedTermFreq[0][1])
         self.fig.canvas.draw()
         plt.show(block=False)
