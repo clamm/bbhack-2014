@@ -19,31 +19,54 @@ from __future__ import (absolute_import, division, print_function,
                         with_statement)
 
 import logging
+import operator
+
+from stemming.porter2 import stem
 
 from bbhack.base import BaseListener
 
 
 LOG = logging.getLogger(__name__)
 
+termFreq = {}
+counter = 0
+
 
 class HashTagLogger(BaseListener):
-
     def __init__(self, zmq_sub_string, channel):
         super(HashTagLogger, self).__init__(zmq_sub_string, channel)
 
+    def addToDict(self, tag):
+        tag = tag.lower()
+        tag = stem(tag)
+        if tag in termFreq.keys():
+            termFreq[tag] += 1
+        else:
+            termFreq[tag] = 1
+
+
+        sortedTermFreq = sorted(termFreq.iteritems(), key=operator.itemgetter(1), reverse=True)
+
+        print(sortedTermFreq[1:10])
+
+
+
     def on_msg(self, tweet):
-        print(tweet)
-        return
+
         if 'entities' in tweet and 'hashtags' in tweet['entities']:
             tags = tweet['entities']['hashtags']
             for tag in tags:
-                LOG.info(tag['text'])
+                elem = tag['text']
+                self.addToDict(elem)
+
+        return
 
 
 def main():
     """Start the HashTagLogger."""
 
     import argparse
+
     p = argparse.ArgumentParser()
     p.add_argument('--zmq_sub_string', default='tcp://*:5556')
     p.add_argument('--channel', default='tweet.stream')
